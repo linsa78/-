@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Налоги — тренажёр к контрольной</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>📚 Налоги — тренажёр к контрольной</h1>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">Прогресс: 0%</div>
+  </header>
+
+  <nav>
+    <button class="active" data-tab="lectures">📖 Темы и тесты</button>
+    <button data-tab="cards">🃏 Карточки</button>
+    <button data-tab="final">🏁 Итоговый тест</button>
+    <button data-tab="review">🔁 Повторение</button>
+  </nav>
+
+  <main>
+        <section class="panel active" id="lectures">
+      <h2>Карта тем</h2>
+      <p class="muted" style="margin-bottom:16px;">Проходи темы по порядку, как в игре. Кликни на доступную тему, чтобы открыть лекцию и тест.</p>
+      
+      <div class="tree-container" id="treeContainer"></div>
+      
+      <div id="topicDetails" style="margin-top: 30px;"></div>
+    </section>
+      <h2>Темы и тесты по ним</h2>
+      <p class="muted" style="margin-bottom:16px;">Изучи тему → пройди мини-тест. После темы без ошибок появляется галочка «изучено».</p>
+      <div id="topicsContainer"></div>
+    </section>
+
+    <section class="panel" id="cards">
+      <h2>Флеш-карточки</h2>
+      <p class="muted" style="text-align:center;margin-bottom:10px;">Нажми, чтобы перевернуть. Свайп <b>влево</b> (или кнопка) — не выучил. Свайп <b>вправо</b> — выучил.</p>
+      
+      <div class="card-container" id="cardContainer">
+        <!-- Плашки для свайпа -->
+        <div class="swipe-badge badge-left" id="badgeLeft">Не выучил</div>
+        <div class="swipe-badge badge-right" id="badgeRight">Выучил</div>
+        
+        <div class="card-wrapper" id="cardWrapper">
+          <div class="card-inner" id="cardInner">
+            <div class="card-face card-front">
+              <span id="cardQuestion">Загрузка…</span>
+              <span class="card-hint">нажми, чтобы увидеть ответ</span>
+            </div>
+            <div class="card-face card-back">
+              <span id="cardAnswer"></span>
+              <span class="card-hint">нажми, чтобы вернуться к вопросу</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-controls">
+        <button class="btn btn-gray" id="btnAgain">❌ Не выучил</button>
+        <button class="btn btn-blue" id="flipCard">Перевернуть</button>
+        <button class="btn btn-green" id="btnLearned">✅ Выучил</button>
+      </div>
+      <div class="card-counter" id="cardCounter"></div>
+    </section>
+
+    <section class="panel" id="final">
+      <h2>Итоговый тест</h2>
+      <p class="muted" style="margin-bottom:16px;">Все вопросы по всем темам. Проходи после мини-тестов.</p>
+      <div id="finalContainer"></div>
+      <div style="margin-top:16px;font-weight:600;color:#64ffda;" id="finalScore"></div>
+    </section>
+
+    <section class="panel" id="review">
+      <h2>Повторение</h2>
+      <p class="muted" style="margin-bottom:16px;">Вопросы, где ты ошибалась, и те, что давно не повторяла. Отвечай — система запоминает.</p>
+      <div id="reviewContainer"></div>
+      <div style="margin-top:16px;font-weight:600;color:#64ffda;" id="reviewScore"></div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
