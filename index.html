@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Тренажёр: Налоги (4.1–4.3)</title>
+<title>Налоги: теория и тесты (4.1–4.3)</title>
 <style>
   :root{
     --bg:#0f172a; --card:#1e293b; --card2:#273449;
     --txt:#e2e8f0; --muted:#94a3b8; --acc:#38bdf8;
-    --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    --ok:#22c55e; --bad:#ef4444;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5}
@@ -26,53 +26,36 @@
   .card h2{margin:0 0 10px;font-size:18px;color:var(--acc)}
   .card h3{margin:14px 0 8px;font-size:15px;color:#fbbf24}
   table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
-  th,td{border:1px solid #334155;padding:6px 8px;text-align:left}
+  th,td{border:1px solid #334155;padding:6px 8px;text-align:left;vertical-align:top}
   th{background:var(--card2);color:var(--acc)}
   code{background:#0b1220;padding:2px 6px;border-radius:4px;color:#7dd3fc;font-size:13px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-  input[type=number]{width:100%;padding:9px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:var(--txt);font-size:15px}
-  .btn{margin-top:12px;padding:10px 18px;border:none;border-radius:8px;background:var(--acc);color:#0f172a;font-weight:600;cursor:pointer;font-size:15px}
-  .btn:hover{filter:brightness(1.1)}
-  .out{margin-top:12px;padding:12px;border-radius:8px;background:#0b1220;border-left:4px solid var(--acc);font-size:14px;white-space:pre-wrap;display:none}
-  .out.show{display:block}
-  .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #334155}
-  .row b{color:#fde68a}
+  ul{margin:6px 0;padding-left:22px}
+  li{margin:3px 0}
   .q{margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #334155}
   .q p{margin:0 0 8px;font-weight:500}
   .opt{display:block;padding:8px 10px;margin:5px 0;border:1px solid #334155;border-radius:8px;cursor:pointer;font-size:14px;transition:.15s}
   .opt:hover{border-color:var(--acc)}
+  .opt.selected{border-color:var(--acc);background:#0b1220}
   .opt.correct{background:#14532d;border-color:var(--ok)}
   .opt.wrong{background:#7f1d1d;border-color:var(--bad)}
   .opt.locked{cursor:default}
+  .btn{margin-top:12px;padding:10px 18px;border:none;border-radius:8px;background:var(--acc);color:#0f172a;font-weight:600;cursor:pointer;font-size:15px}
+  .btn:hover{filter:brightness(1.1)}
   .result{padding:12px;border-radius:8px;text-align:center;font-weight:600;margin-top:10px;display:none}
   .result.show{display:block}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px}
-  .badge{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--card2);font-size:12px;color:var(--muted);margin-left:6px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--card2);font-size:12px;color:var(--muted);margin-left:6px;font-weight:400}
 </style>
 </head>
 <body>
 <header>
-  <h1>🧾 Тренажёр: Налоги организаций</h1>
-  <p>Тема 4.1 Прибыль · 4.2 НДС · 4.3 НДФЛ — теория, калькуляторы, тесты</p>
+  <h1>🧾 Налоги организаций: теория и тесты</h1>
+  <p>Тема 4.1 Прибыль · 4.2 НДС · 4.3 НДФЛ</p>
 </header>
 <nav id="nav"></nav>
 <main id="app"></main>
 
 <script>
-/* ======================= ДАННЫЕ ======================= */
-const NAV = [
-  {id:'theory',  name:'📚 Теория'},
-  {id:'profit',  name:'🧮 Прибыль'},
-  {id:'nds',     name:'🧮 НДС'},
-  {id:'ndfl',    name:'🧮 НДФЛ'},
-  {id:'test1',   name:'📝 Тест: Прибыль'},
-  {id:'test2',   name:'📝 Тест: НДС'},
-  {id:'test3',   name:'📝 Тест: НДФЛ'},
-  {id:'final',   name:'🎯 Итоговый тест'}
-];
-
-/* ---------- ТЕСТ 1: ПРИБЫЛЬ ---------- */
+/* ======================= ДАННЫЕ ТЕСТОВ ======================= */
 const TEST1 = [
   {q:'Налог на прибыль — это…', o:['косвенный федеральный налог','прямой федеральный налог','региональный налог'], a:1},
   {q:'Объект налогообложения по налогу на прибыль:', o:['выручка','прибыль (доходы − расходы)','добавленная стоимость'], a:1},
@@ -87,8 +70,6 @@ const TEST1 = [
   {q:'Кто НЕ платит налог на прибыль:', o:['ПАО','ООО на УСН','иностранная фирма с представительством'], a:1},
   {q:'Ставка в федеральный бюджет (2025–2030):', o:['8%','17%','3%'], a:0}
 ];
-
-/* ---------- ТЕСТ 2: НДС ---------- */
 const TEST2 = [
   {q:'НДС — это налог:', o:['прямой','косвенный','имущественный'], a:1},
   {q:'Основная ставка НДС:', o:['18%','20%','25%'], a:1},
@@ -101,8 +82,6 @@ const TEST2 = [
   {q:'НДС начисляется:', o:['продавцом при реализации','покупателем','банком'], a:0},
   {q:'Вычет — это НДС:', o:['уплаченный при покупке','начисленный при продаже','штраф'], a:0}
 ];
-
-/* ---------- ТЕСТ 3: НДФЛ ---------- */
 const TEST3 = [
   {q:'НДФЛ — налог:', o:['косвенный','прямой','региональный'], a:1},
   {q:'Налоговые резиденты РФ — это лица, находящиеся в РФ:', o:['≥ 90 дней','≥ 183 дней','≥ 365 дней'], a:1},
@@ -115,8 +94,6 @@ const TEST3 = [
   {q:'Вычеты бывают:', o:['только стандартные','стандартные, социальные, имущественные, профессиональные','только социальные'], a:1},
   {q:'НДФЛ платит:', o:['организация за свой счёт','физлицо-налогоплательщик','банк'], a:1}
 ];
-
-/* ---------- ИТОГОВЫЙ ТЕСТ ---------- */
 const FINAL = [
   {q:'Какой налог — косвенный?', o:['налог на прибыль','НДС','НДФЛ'], a:1},
   {q:'Ставка налога на прибыль в субъект РФ (2025–2030):', o:['8%','17%','20%'], a:1},
@@ -135,31 +112,18 @@ const FINAL = [
   {q:'Вычеты по НДФЛ:', o:['уменьшают доход до налога','увеличивают налог','не влияют'], a:0}
 ];
 
-/* ======================= УТИЛИТЫ ======================= */
-const fmt = n => n.toLocaleString('ru-RU', {maximumFractionDigits:2});
-
-/* Универсальный калькулятор налога на прибыль */
-function calcProfit(DR, RR, VD, VR, loss){
-  const base = (DR + VD) - (RR + VR);
-  let usedLoss = 0, nb = base;
-  if(base > 0 && loss > 0){
-    const limit = base * 0.5;
-    usedLoss = Math.min(loss, limit);
-    nb = base - usedLoss;
-  }
-  const tax = nb * 0.25;
-  return {
-    base, usedLoss, nb,
-    tax, fb: nb*0.08, rb: nb*0.17,
-    net: nb - tax,
-    lossLeft: loss - usedLoss
-  };
-}
-
-/* ======================= РЕНДЕР ======================= */
+/* ======================= НАВИГАЦИЯ ======================= */
+const NAV = [
+  {id:'t1', name:'📚 Прибыль'},
+  {id:'t2', name:'📚 НДС'},
+  {id:'t3', name:'📚 НДФЛ'},
+  {id:'q1', name:'📝 Тест: Прибыль'},
+  {id:'q2', name:'📝 Тест: НДС'},
+  {id:'q3', name:'📝 Тест: НДФЛ'},
+  {id:'qf', name:'🎯 Итоговый тест'}
+];
 const app = document.getElementById('app');
 const nav = document.getElementById('nav');
-
 NAV.forEach((n,i)=>{
   const b = document.createElement('button');
   b.textContent = n.name;
@@ -167,209 +131,184 @@ NAV.forEach((n,i)=>{
   nav.appendChild(b);
   if(i===0) b.classList.add('active');
 });
-
 function show(id, btn){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   document.querySelectorAll('section').forEach(s=>s.classList.remove('show'));
   const el = document.getElementById(id);
   if(el) el.classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ---------- СЕКЦИИ ---------- */
+/* ======================= ТЕОРИЯ ======================= */
 app.innerHTML = `
-<!-- ТЕОРИЯ -->
-<section id="theory" class="show">
+<section id="t1">
   <div class="card">
-    <h2>Налог на прибыль (гл. 25 НК РФ)</h2>
-    <table>
-      <tr><th>Понятие</th><th>Суть</th></tr>
-      <tr><td>Тип</td><td>федеральный, прямой</td></tr>
-      <tr><td>Объект</td><td>прибыль = доходы − расходы</td></tr>
-      <tr><td>Ставка</td><td>25% = 8% ФБ + 17% субъект (2025–2030)</td></tr>
-      <tr><td>Период</td><td>налоговый — год; отчётные — квартал, полугодие, 9 мес.</td></tr>
-      <tr><td>Формула</td><td><code>(ДР+ВД) − (РР+ВР) − У</code></td></tr>
-      <tr><td>Убытки</td><td>не более 50% базы (2017–2030)</td></tr>
-      <tr><td>Декларация</td><td>год — до 26 марта; авансы — до 28 числа</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h2>НДС (гл. 21 НК РФ)</h2>
-    <table>
-      <tr><th>Понятие</th><th>Суть</th></tr>
-      <tr><td>Тип</td><td>федеральный, косвенный</td></tr>
-      <tr><td>Механизм</td><td>НДС к уплате = начисленный − вычет</td></tr>
-      <tr><td>Ставки</td><td>20% / 10% / 0%; расчётные 20/120, 10/110</td></tr>
-      <tr><td>Формулы</td><td><code>НДС = Стоимость × ставка</code><br><code>НДС из суммы = Сумма × 20/120</code></td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h2>НДФЛ (гл. 23 НК РФ)</h2>
-    <table>
-      <tr><th>Понятие</th><th>Суть</th></tr>
-      <tr><td>Тип</td><td>федеральный, прямой</td></tr>
-      <tr><td>Резидент</td><td>≥ 183 дней за 12 мес.</td></tr>
-      <tr><td>Ставки (2025)</td><td>13% до 2,4 млн; 15% до 5 млн; 18% до 20 млн; 20% до 50 млн; 22% свыше</td></tr>
-      <tr><td>Нерезиденты</td><td>30% (общее правило)</td></tr>
-      <tr><td>Формула</td><td><code>(Доход − вычеты) × ставка</code></td></tr>
-    </table>
-  </div>
-</section>
-
-<!-- КАЛЬКУЛЯТОР ПРИБЫЛИ -->
-<section id="profit">
-  <div class="card">
-    <h2>Калькулятор налога на прибыль</h2>
-    <div class="grid">
-      <div><label>Доходы от реализации (ДР)</label><input type="number" id="p_dr" value="47000000"></div>
-      <div><label>Расходы от реализации (РР)</label><input type="number" id="p_rr" value="41500000"></div>
-      <div><label>Внереализационные доходы (ВД)</label><input type="number" id="p_vd" value="5500000"></div>
-      <div><label>Внереализационные расходы (ВР)</label><input type="number" id="p_vr" value="4500000"></div>
-      <div><label>Убытки прошлых лет</label><input type="number" id="p_loss" value="0"></div>
-    </div>
-    <button class="btn" onclick="runProfit()">Рассчитать</button>
-    <div class="out" id="p_out"></div>
-  </div>
-</section>
-
-<!-- КАЛЬКУЛЯТОР НДС -->
-<section id="nds">
-  <div class="card">
-    <h2>Калькулятор НДС</h2>
-    <div class="grid">
-      <div><label>Стоимость без НДС (продажи)</label><input type="number" id="n_sale" value="1200000"></div>
-      <div><label>Стоимость без НДС (покупки)</label><input type="number" id="n_buy" value="600000"></div>
-      <div><label>Ставка, %</label>
-        <select id="n_rate" style="width:100%;padding:9px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:#e2e8f0">
-          <option value="20">20%</option><option value="10">10%</option><option value="0">0%</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn" onclick="runNds()">Рассчитать</button>
-    <div class="out" id="n_out"></div>
-  </div>
-  <div class="card">
-    <h2>Выделить НДС из суммы «с НДС»</h2>
-    <div class="grid">
-      <div><label>Сумма с НДС</label><input type="number" id="n_gross" value="220000"></div>
-    </div>
-    <button class="btn" onclick="runNdsExtract()">Выделить</button>
-    <div class="out" id="n_out2"></div>
+    <h2>Тема 4.1. Налог на прибыль организаций</h2>
+    <p>Федеральный прямой налог. Величина зависит от конечного финансового результата. Правила — глава 25 НК РФ.</p>
+    <h3>Плательщики</h3>
+    <ul>
+      <li>Все российские юридические лица (ООО, АО, ПАО и пр.)</li>
+      <li>Иностранные юрлица, работающие в РФ через постоянные представительства или получающие доход от источника в РФ</li>
+      <li>Иностранные организации — налоговые резиденты РФ по международному договору</li>
+      <li>Иностранные организации, местом фактического управления которых является РФ</li>
+    </ul>
+    <h3>Кто не платит</h3>
+    <ul>
+      <li>Применяющие спецрежимы (УСН, ЕСХН) или плательщики налога на игорный бизнес</li>
+      <li>Участники «Сколково» и «ИНТЦ»</li>
+      <li>Участники технополиса «Эра»</li>
+      <li>Зарегистрированные на Курильских островах</li>
+    </ul>
+    <h3>Объект налогообложения</h3>
+    <p>Прибыль = доходы − расходы (ст. 247 НК РФ). Для российских организаций — доходы, уменьшенные на расходы.</p>
+    <h3>Доходы</h3>
+    <ul>
+      <li><b>От реализации</b> — выручка от реализации товаров, работ, услуг, имущественных прав (собственного производства и ранее приобретённых).</li>
+      <li><b>Внереализационные</b> — от долевого участия, аренды, проценты по займам/кредитам/вкладам и пр.</li>
+    </ul>
+    <p>Все доходы учитываются без НДС и акцизов. Подтверждаются первичными документами и документами налогового учёта.</p>
+    <h3>Расходы</h3>
+    <p>Обоснованные и документально подтверждённые затраты. Делятся на:</p>
+    <ul>
+      <li><b>Связанные с производством и реализацией:</b>
+        <ul>
+          <li><b>Прямые</b> (ст. 318): материальные расходы; амортизация; оплата труда персонала, участвующего в производстве. Учитываются по мере реализации продукции.</li>
+          <li><b>Косвенные</b> — все иные, списываются полностью в текущем периоде.</li>
+        </ul>
+      </li>
+      <li><b>Внереализационные</b> (ст. 265): содержание арендованного имущества, проценты по долгам, выпуск ценных бумаг, отрицательная курсовая разница, ликвидация ОС и пр.</li>
+    </ul>
+    <p>Есть закрытый перечень расходов, которые нельзя учитывать: дивиденды, взносы в уставный капитал, погашение кредитов и пр.</p>
+    <h3>Порядок расчёта</h3>
+    <p><code>Налог = Ставка × Налоговая база</code></p>
+    <p><code>ПР(НБ) = (ДР + ВД) − (РР + ВР) − У</code></p>
+    <p>ДР — доходы от реализации; РР — расходы от реализации; ВД — внереализационные доходы; ВР — внереализационные расходы; У — убытки прошлых лет к переносу.</p>
+    <p>Расчёт базы должен содержать (ст. 315): период; доходы от реализации; расходы, уменьшающие доходы; прибыль от реализации; внереализационные доходы; прибыль от внереализационных операций; итоговая база; сумма убытка к переносу.</p>
+    <h3>Ставки</h3>
+    <ul>
+      <li>Основная — <b>25%</b>: 8% в федеральный бюджет (2025–2030), 17% в бюджет субъекта (2017–2030).</li>
+    </ul>
+    <h3>Периоды</h3>
+    <ul>
+      <li>Налоговый — календарный год.</li>
+      <li>Отчётные — квартал, полугодие, 9 месяцев.</li>
+    </ul>
+    <h3>Перенос убытков (ст. 283)</h3>
+    <p>Базу можно уменьшить на убытки прошлых лет, но не более чем на <b>50%</b> (2017–2030). Документы хранятся весь срок использования убытка.</p>
+    <h3>Отчётность и уплата</h3>
+    <ul>
+      <li>Декларация: за отчётный период — в течение 25 дней; за год — до 26 марта.</li>
+      <li>Авансы: ежемесячно по фактической прибыли или ежеквартально — не позднее 28-го числа следующего месяца.</li>
+    </ul>
   </div>
 </section>
 
-<!-- КАЛЬКУЛЯТОР НДФЛ -->
-<section id="ndfl">
+<section id="t2">
   <div class="card">
-    <h2>Калькулятор НДФЛ (2025, прогрессия)</h2>
-    <div class="grid">
-      <div><label>Годовой доход, руб.</label><input type="number" id="f_income" value="1200000"></div>
-      <div><label>Вычеты за год, руб.</label><input type="number" id="f_ded" value="0"></div>
-    </div>
-    <button class="btn" onclick="runNdfl()">Рассчитать</button>
-    <div class="out" id="f_out"></div>
-    <p class="hint">Прогрессия 2025: 13% до 2,4 млн; 15% до 5 млн; 18% до 20 млн; 20% до 50 млн; 22% свыше.</p>
+    <h2>Тема 4.2. НДС</h2>
+    <p>Федеральный косвенный налог. Продавец предъявляет НДС покупателю сверх цены, а в бюджет платит разницу между начисленным и предъявленным ему при покупках.</p>
+    <h3>Плательщики</h3>
+    <ul>
+      <li>Организации (в том числе некоммерческие)</li>
+      <li>Индивидуальные предприниматели</li>
+      <li>Лица при ввозе товаров на территорию РФ</li>
+    </ul>
+    <h3>Объект налогообложения</h3>
+    <ul>
+      <li>Реализация товаров (работ, услуг), имущественных прав на территории РФ</li>
+      <li>Передача товаров для собственных нужд, расходы по которым не принимаются к вычету</li>
+      <li>Выполнение строительно-монтажных работ для собственного потребления</li>
+      <li>Ввоз товаров на таможенную территорию РФ</li>
+    </ul>
+    <h3>Налоговая база</h3>
+    <p>Стоимость реализуемых товаров (работ, услуг) с учётом акцизов, без включения НДС. При ввозе — таможенная стоимость + пошлины + акцизы.</p>
+    <h3>Ставки</h3>
+    <ul>
+      <li><b>20%</b> — основная</li>
+      <li><b>10%</b> — социально значимые товары (продовольствие, детские товары, медикаменты, периодика и пр.)</li>
+      <li><b>0%</b> — экспорт, международные перевозки и пр.</li>
+      <li><b>Расчётные:</b> 20/120, 10/110 — для выделения налога из суммы «с НДС»</li>
+    </ul>
+    <h3>Порядок исчисления</h3>
+    <p><code>НДС к уплате = НДС начисленный − НДС к вычету</code></p>
+    <ul>
+      <li>Начисленный — при реализации (стоимость × ставка).</li>
+      <li>Вычет — НДС, предъявленный поставщиками при приобретении товаров (работ, услуг), используемых в облагаемых операциях.</li>
+    </ul>
+    <p>Если по итогам периода вычет больше начисленного — разница подлежит возмещению (зачёт/возврат).</p>
+    <h3>Периоды и уплата</h3>
+    <ul>
+      <li>Налоговый период — квартал.</li>
+      <li>Уплата — равными долями не позднее 28-го числа каждого из трёх месяцев, следующего за отчётным кварталом.</li>
+      <li>Декларация — не позднее 25-го числа месяца, следующего за кварталом.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ТЕСТЫ -->
-<section id="test1"></section>
-<section id="test2"></section>
-<section id="test3"></section>
-<section id="final"></section>
+<section id="t3">
+  <div class="card">
+    <h2>Тема 4.3. НДФЛ</h2>
+    <p>Федеральный прямой налог на доходы физических лиц. Правила — глава 23 НК РФ.</p>
+    <h3>Плательщики</h3>
+    <ul>
+      <li>Налоговые резиденты РФ — физические лица, находящиеся в РФ не менее <b>183 дней</b> в течение 12 следующих подряд месяцев.</li>
+      <li>Нерезиденты — получающие доход от источников в РФ.</li>
+    </ul>
+    <h3>Объект налогообложения</h3>
+    <ul>
+      <li>Для резидентов — доход от источников в РФ и за её пределами.</li>
+      <li>Для нерезидентов — доход от источников в РФ.</li>
+      <li>Доходы: зарплата, премии, отпускные, больничные, дивиденды, проценты, доходы от продажи имущества, аренды и пр.</li>
+    </ul>
+    <h3>Налоговая база</h3>
+    <p>Денежное выражение доходов, уменьшенных на сумму налоговых вычетов. По доходам с разными ставками база считается отдельно.</p>
+    <h3>Ставки (2025)</h3>
+    <ul>
+      <li>Резиденты, основная база (прогрессия):
+        <ul>
+          <li>13% — до 2,4 млн руб.</li>
+          <li>15% — 2,4–5 млн руб.</li>
+          <li>18% — 5–20 млн руб.</li>
+          <li>20% — 20–50 млн руб.</li>
+          <li>22% — свыше 50 млн руб.</li>
+        </ul>
+      </li>
+      <li>Дивиденды резидентов — 13% (до 2,4 млн) / 15% свыше.</li>
+      <li>Нерезиденты (общее правило) — 30%.</li>
+      <li>Отдельные виды доходов — 35% (выигрыши, сверхдоходы по вкладам и пр.).</li>
+    </ul>
+    <h3>Налоговые вычеты</h3>
+    <ul>
+      <li><b>Стандартные</b> — на детей, для отдельных категорий граждан.</li>
+      <li><b>Социальные</b> — обучение, лечение, спорт, пенсионные взносы.</li>
+      <li><b>Имущественные</b> — при покупке жилья, продаже имущества.</li>
+      <li><b>Профессиональные</b> — для ИП, нотариусов, авторов и пр.</li>
+      <li><b>Инвестиционные</b> — по ИИС и операциям с ценными бумагами.</li>
+    </ul>
+    <h3>Порядок исчисления</h3>
+    <p><code>НДФЛ = (Доход − Вычеты) × Ставка</code></p>
+    <ul>
+      <li>Работодатель (налоговый агент) удерживает НДФЛ при каждой выплате дохода.</li>
+      <li>По итогам года физическое лицо подаёт декларацию 3-НДФЛ (при необходимости).</li>
+      <li>Налоговый период — календарный год.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="q1"><div class="card" id="q1_card"></div></section>
+<section id="q2"><div class="card" id="q2_card"></div></section>
+<section id="q3"><div class="card" id="q3_card"></div></section>
+<section id="qf"><div class="card" id="qf_card"></div></section>
 `;
 
-/* ---------- ЛОГИКА ПРИБЫЛИ ---------- */
-function runProfit(){
-  const g = id => +document.getElementById(id).value || 0;
-  const r = calcProfit(g('p_dr'), g('p_rr'), g('p_vd'), g('p_vr'), g('p_loss'));
-  const out = document.getElementById('p_out');
-  out.innerHTML = `
-    <div class="row"><span>База до вычета убытков:</span><b>${fmt(r.base)} руб.</b></div>
-    <div class="row"><span>Списано убытков (≤50%):</span><b>${fmt(r.usedLoss)} руб.</b></div>
-    <div class="row"><span>Налоговая база:</span><b>${fmt(r.nb)} руб.</b></div>
-    <div class="row"><span>Налог 25%:</span><b>${fmt(r.tax)} руб.</b></div>
-    <div class="row"><span>→ ФБ (8%):</span><b>${fmt(r.fb)} руб.</b></div>
-    <div class="row"><span>→ РБ (17%):</span><b>${fmt(r.rb)} руб.</b></div>
-    <div class="row"><span>Чистая прибыль:</span><b>${fmt(r.net)} руб.</b></div>
-    ${r.lossLeft>0?`<div class="row"><span>Остаток убытков:</span><b>${fmt(r.lossLeft)} руб.</b></div>`:''}
-  `;
-  out.classList.add('show');
-}
-
-/* ---------- ЛОГИКА НДС ---------- */
-function runNds(){
-  const g = id => +document.getElementById(id).value || 0;
-  const rate = +document.getElementById('n_rate').value / 100;
-  const sale = g('n_sale'), buy = g('n_buy');
-  const ndsSale = sale * rate, ndsBuy = buy * rate;
-  const payable = ndsSale - ndsBuy;
-  const out = document.getElementById('n_out');
-  out.innerHTML = `
-    <div class="row"><span>НДС начисленный (продажи):</span><b>${fmt(ndsSale)} руб.</b></div>
-    <div class="row"><span>НДС к вычету (покупки):</span><b>${fmt(ndsBuy)} руб.</b></div>
-    <div class="row"><span>НДС к уплате:</span><b>${fmt(payable)} руб.</b></div>
-    <div class="row"><span>Цена продажи с НДС:</span><b>${fmt(sale + ndsSale)} руб.</b></div>
-  `;
-  out.classList.add('show');
-}
-function runNdsExtract(){
-  const sum = +document.getElementById('n_gross').value || 0;
-  const nds = sum * 20/120;
-  const out = document.getElementById('n_out2');
-  out.innerHTML = `
-    <div class="row"><span>Сумма с НДС:</span><b>${fmt(sum)} руб.</b></div>
-    <div class="row"><span>НДС (20/120):</span><b>${fmt(nds)} руб.</b></div>
-    <div class="row"><span>Стоимость без НДС:</span><b>${fmt(sum - nds)} руб.</b></div>
-  `;
-  out.classList.add('show');
-}
-
-/* ---------- ЛОГИКА НДФЛ (прогрессия 2025) ---------- */
-function ndflProgressive(income){
-  const brackets = [
-    {limit:2_400_000, rate:0.13},
-    {limit:5_000_000, rate:0.15},
-    {limit:20_000_000, rate:0.18},
-    {limit:50_000_000, rate:0.20},
-    {limit:Infinity,  rate:0.22}
-  ];
-  let tax = 0, prev = 0, detail = [];
-  for(const b of brackets){
-    if(income <= prev) break;
-    const part = Math.min(income, b.limit) - prev;
-    const t = part * b.rate;
-    tax += t;
-    detail.push({from:prev, to:Math.min(income,b.limit), rate:b.rate*100, tax:t});
-    prev = b.limit;
-  }
-  return {tax, detail};
-}
-function runNdfl(){
-  const income = +document.getElementById('f_income').value || 0;
-  const ded = +document.getElementById('f_ded').value || 0;
-  const taxable = Math.max(0, income - ded);
-  const {tax, detail} = ndflProgressive(taxable);
-  const out = document.getElementById('f_out');
-  out.innerHTML = `
-    <div class="row"><span>Доход:</span><b>${fmt(income)} руб.</b></div>
-    <div class="row"><span>Вычеты:</span><b>${fmt(ded)} руб.</b></div>
-    <div class="row"><span>Налоговая база:</span><b>${fmt(taxable)} руб.</b></div>
-    ${detail.map(d=>`<div class="row"><span>${fmt(d.from)}–${fmt(d.to)} × ${d.rate}%:</span><b>${fmt(d.tax)} руб.</b></div>`).join('')}
-    <div class="row"><span><b>Итого НДФЛ:</b></span><b>${fmt(tax)} руб.</b></div>
-    <div class="row"><span>На руки:</span><b>${fmt(taxable - tax + ded)} руб.</b></div>
-  `;
-  out.classList.add('show');
-}
-
-/* ---------- РЕНДЕР ТЕСТОВ ---------- */
+/* ======================= РЕНДЕР ТЕСТОВ ======================= */
 function buildTest(containerId, data, title){
   const c = document.getElementById(containerId);
-  c.innerHTML = `<div class="card"><h2>${title} <span class="badge">${data.length} вопросов</span></h2>
+  c.innerHTML = `<h2>${title} <span class="badge">${data.length} вопросов</span></h2>
     <div id="${containerId}_qs"></div>
     <button class="btn" onclick="checkTest('${containerId}', ${JSON.stringify(JSON.stringify(data))})">Проверить результат</button>
-    <div class="result" id="${containerId}_res"></div>
-  </div>`;
+    <div class="result" id="${containerId}_res"></div>`;
   const qs = document.getElementById(containerId + '_qs');
   data.forEach((item, qi)=>{
     const div = document.createElement('div');
@@ -381,11 +320,12 @@ function buildTest(containerId, data, title){
   window[containerId + '_answers'] = {};
 }
 function pick(el, qi, oi, cid){
+  if(el.classList.contains('locked')) return;
   const key = cid + '_answers';
   window[key][qi] = oi;
   const parent = el.parentElement;
-  parent.querySelectorAll('.opt').forEach(o=>o.style.borderColor='#334155');
-  el.style.borderColor = '#38bdf8';
+  parent.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
 }
 function checkTest(cid, dataJson){
   const data = JSON.parse(dataJson);
@@ -397,6 +337,7 @@ function checkTest(cid, dataJson){
     const opts = block.querySelectorAll('.opt');
     opts.forEach((o, oi)=>{
       o.classList.add('locked');
+      o.classList.remove('selected');
       if(oi === item.a) o.classList.add('correct');
       if(oi === ans[qi] && oi !== item.a) o.classList.add('wrong');
     });
@@ -409,14 +350,12 @@ function checkTest(cid, dataJson){
   res.textContent = `Результат: ${correct} из ${total} (${pct}%)`;
 }
 
-/* ---------- ИНИЦИАЛИЗАЦИЯ ТЕСТОВ ---------- */
-buildTest('test1', TEST1, '📝 Тест: Налог на прибыль');
-buildTest('test2', TEST2, '📝 Тест: НДС');
-buildTest('test3', TEST3, '📝 Тест: НДФЛ');
-buildTest('final', FINAL, '🎯 Итоговый тест по всем темам');
+buildTest('q1_card', TEST1, '📝 Тест: Налог на прибыль');
+buildTest('q2_card', TEST2, '📝 Тест: НДС');
+buildTest('q3_card', TEST3, '📝 Тест: НДФЛ');
+buildTest('qf_card', FINAL, '🎯 Итоговый тест по всем темам');
 
-/* первичная отрисовка */
-show('theory', document.querySelector('nav button'));
+show('t1', document.querySelector('nav button'));
 </script>
 </body>
 </html>
