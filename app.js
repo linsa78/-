@@ -31,7 +31,7 @@ const flashcardsData = [
     { q: "XXVIII. 12 июня 1990 г.", a: "" },
     { q: "XXIX. 12 июня 1991 г.", a: "" },
     { q: "XXX. Когда состоялся референдум о сохранении СССР? Как должен был называться новый союз?", a: "" },
-    { q: "XXXI. 19 августа 1991 г.", a: "События ГКЧП (Государственный комитет по чрезвычайному положению)." }, // этот был с ответом
+    { q: "XXXI. 19 августа 1991 г.", a: "События ГКЧП (Государственный комитет по чрезвычайному положению)." },
     { q: "XXXII. ГКЧП (расшифровка аббревиатуры)", a: "Государственный комитет по чрезвычайному положению." },
     { q: "XXXIII. Цель ГКЧП", a: "" },
     { q: "XXXIV. Организаторы ГКЧП", a: "" },
@@ -40,15 +40,16 @@ const flashcardsData = [
     { q: "XXXVII. Какие страны вошли в СНГ?", a: "" }
 ];
 
-// Состояние приложения
 let currentIndex = 0;
 let knownCount = 0;
 let currentCards = [];
+let answersVisible = false; // По умолчанию ответы скрыты
 
-// DOM элементы
 const tabs = document.querySelectorAll('.tab-btn');
 const modes = document.querySelectorAll('.mode');
 const learnList = document.getElementById('learn-list');
+const toggleAnswersBtn = document.getElementById('toggle-answers-btn');
+
 const flashcard = document.getElementById('flashcard');
 const cardQuestion = document.getElementById('card-question');
 const cardAnswer = document.getElementById('card-answer');
@@ -81,12 +82,11 @@ function initLearnMode() {
         div.className = 'learn-item';
         
         let answerText = item.a;
-        let answerClass = '';
+        let answerClass = answersVisible ? '' : 'answer-hidden';
         
-        // Если ответ пустой — показываем заглушку
         if (!item.a.trim()) {
             answerText = "[Ответ пока не добавлен]";
-            answerClass = 'empty-answer';
+            answerClass = 'empty-answer'; // Пустые ответы всегда видны (или можно тоже скрыть)
         }
 
         div.innerHTML = `<h3>${item.q}</h3><p class="${answerClass}">${answerText}</p>`;
@@ -94,14 +94,27 @@ function initLearnMode() {
     });
 }
 
+// Кнопка "Показать/Скрыть ответы" в режиме Учить
+toggleAnswersBtn.addEventListener('click', () => {
+    answersVisible = !answersVisible;
+    toggleAnswersBtn.textContent = answersVisible ? 'Скрыть ответы' : 'Показать ответы';
+    
+    // Обновляем классы у всех ответов
+    const answers = document.querySelectorAll('.learn-item p');
+    answers.forEach(p => {
+        if (p.textContent === "[Ответ пока не добавлен]") return; // не трогаем пустые
+        
+        if (answersVisible) {
+            p.classList.remove('answer-hidden');
+        } else {
+            p.classList.add('answer-hidden');
+        }
+    });
+});
+
 // Инициализация режима "Карточки"
 function initCards() {
-    // Берем только те карточки, где есть ответ!
     currentCards = flashcardsData.filter(item => item.a.trim() !== "");
-    
-    // Перемешиваем (опционально, раскомментируй, если нужно)
-    // currentCards.sort(() => Math.random() - 0.5);
-    
     currentIndex = 0;
     knownCount = 0;
     updateCard();
@@ -129,13 +142,11 @@ function updateCard() {
     flashcard.className = 'flashcard';
 }
 
-// Показ ответа
 showAnswerBtn.addEventListener('click', () => {
     cardAnswer.classList.remove('hidden');
     showAnswerBtn.style.display = 'none';
 });
 
-// Обработка свайпов / кнопок
 function handleSwipe(isKnown) {
     if (currentIndex >= currentCards.length) return;
 
@@ -155,7 +166,7 @@ function handleSwipe(isKnown) {
 btnKnow.addEventListener('click', () => handleSwipe(true));
 btnDontKnow.addEventListener('click', () => handleSwipe(false));
 
-// Поддержка свайпов мышью/пальцем
+// Свайпы
 let startX = 0;
 let isDragging = false;
 
