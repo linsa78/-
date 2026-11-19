@@ -15,7 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    height: 100dvh; /* Для корректной высоты на мобильных */
+    height: 100dvh; /* Исправляет высоту на мобильных */
     overflow: hidden;
 }
 
@@ -94,7 +94,7 @@ main {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding-bottom: 80px; /* Отступ снизу */
+    padding-bottom: 120px; /* Огромный отступ, чтобы ничего не перекрывалось */
 }
 
 .learn-item {
@@ -131,7 +131,8 @@ main {
     flex-direction: column;
     padding: 20px;
     height: 100%;
-    padding-bottom: env(safe-area-inset-bottom, 40px); /* Безопасный отступ для iPhone */
+    /* Безопасные отступы для айфонов (учет "челки" и полоски снизу) */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 20px));
 }
 
 #cards-mode.active { display: flex; }
@@ -167,14 +168,14 @@ main {
     align-items: center;
     justify-content: center;
     perspective: 1000px;
-    min-height: 0; /* Важно для флекса */
+    min-height: 0; /* Важно, чтобы карточка не растягивала экран */
 }
 
 .flashcard {
     width: 100%;
     max-width: 400px;
     height: 60vh;
-    max-height: 100%; /* Чтобы не вылезала за экран */
+    max-height: 100%;
     background: var(--card-bg-blue);
     border-radius: 20px;
     padding: 25px;
@@ -228,7 +229,7 @@ main {
     display: flex;
     gap: 15px;
     margin-top: 15px;
-    flex-shrink: 0; /* Кнопки не сжимаются */
+    flex-shrink: 0; /* Кнопки не будут сжиматься */
 }
 
 .ctrl-btn {
@@ -251,6 +252,6 @@ main {
     font-size: 12px;
     color: var(--text-muted);
     margin-top: 10px;
-    margin-bottom: 20px; /* Отступ, чтобы не перекрывалось панелью браузера */
     flex-shrink: 0;
+    padding-bottom: 10px;
 }
