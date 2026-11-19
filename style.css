@@ -15,6 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh; /* Для корректной высоты на мобильных */
     overflow: hidden;
 }
 
@@ -72,12 +73,28 @@ main {
     display: block;
 }
 
+/* --- Режим Учить --- */
+.learn-controls {
+    padding: 15px 20px 0;
+}
+
+.toggle-btn {
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .learn-list {
-    padding: 20px;
+    padding: 15px 20px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding-bottom: 50px;
+    padding-bottom: 80px; /* Отступ снизу */
 }
 
 .learn-item {
@@ -99,16 +116,22 @@ main {
     white-space: pre-wrap;
 }
 
+.learn-item p.answer-hidden {
+    display: none; /* Скрывает ответы */
+}
+
 .learn-item p.empty-answer {
     color: var(--text-muted);
     font-style: italic;
 }
 
+/* --- Режим Карточки --- */
 #cards-mode {
     display: none;
     flex-direction: column;
     padding: 20px;
     height: 100%;
+    padding-bottom: env(safe-area-inset-bottom, 40px); /* Безопасный отступ для iPhone */
 }
 
 #cards-mode.active { display: flex; }
@@ -144,12 +167,14 @@ main {
     align-items: center;
     justify-content: center;
     perspective: 1000px;
+    min-height: 0; /* Важно для флекса */
 }
 
 .flashcard {
     width: 100%;
     max-width: 400px;
     height: 60vh;
+    max-height: 100%; /* Чтобы не вылезала за экран */
     background: var(--card-bg-blue);
     border-radius: 20px;
     padding: 25px;
@@ -202,7 +227,8 @@ main {
 .controls {
     display: flex;
     gap: 15px;
-    margin-top: 20px;
+    margin-top: 15px;
+    flex-shrink: 0; /* Кнопки не сжимаются */
 }
 
 .ctrl-btn {
@@ -224,5 +250,7 @@ main {
     text-align: center;
     font-size: 12px;
     color: var(--text-muted);
-    margin-top: 15px;
+    margin-top: 10px;
+    margin-bottom: 20px; /* Отступ, чтобы не перекрывалось панелью браузера */
+    flex-shrink: 0;
 }
