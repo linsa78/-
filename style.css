@@ -15,7 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    height: 100dvh; /* Исправляет высоту на мобильных */
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -24,6 +24,9 @@ header {
     background: var(--bg-color);
     border-bottom: 1px solid var(--border-color);
     z-index: 10;
+    /* Шапка тоже фиксируется, чтобы кнопка под ней не пропадала */
+    position: sticky;
+    top: 0;
 }
 
 .header-content {
@@ -74,12 +77,13 @@ main {
 }
 
 /* --- Режим Учить --- */
-.learn-controls {
-    padding: 15px 20px 0;
-}
-
 .toggle-btn {
-    background: transparent;
+    position: fixed;
+    top: 75px; /* Высота шапки + отступ */
+    left: 20px;
+    z-index: 100;
+    
+    background: #2c2c2e;
     color: var(--text-color);
     border: 1px solid var(--border-color);
     padding: 10px 16px;
@@ -87,14 +91,16 @@ main {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
 }
 
 .learn-list {
-    padding: 15px 20px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding-bottom: 120px; /* Огромный отступ, чтобы ничего не перекрывалось */
+    padding-top: 75px; /* Отступ, чтобы первая карточка не пряталась под кнопкой */
+    padding-bottom: 120px;
 }
 
 .learn-item {
@@ -117,7 +123,7 @@ main {
 }
 
 .learn-item p.answer-hidden {
-    display: none; /* Скрывает ответы */
+    display: none;
 }
 
 .learn-item p.empty-answer {
@@ -131,7 +137,6 @@ main {
     flex-direction: column;
     padding: 20px;
     height: 100%;
-    /* Безопасные отступы для айфонов (учет "челки" и полоски снизу) */
     padding-bottom: calc(20px + env(safe-area-inset-bottom, 20px));
 }
 
@@ -168,7 +173,7 @@ main {
     align-items: center;
     justify-content: center;
     perspective: 1000px;
-    min-height: 0; /* Важно, чтобы карточка не растягивала экран */
+    min-height: 0;
 }
 
 .flashcard {
@@ -229,7 +234,7 @@ main {
     display: flex;
     gap: 15px;
     margin-top: 15px;
-    flex-shrink: 0; /* Кнопки не будут сжиматься */
+    flex-shrink: 0;
 }
 
 .ctrl-btn {
