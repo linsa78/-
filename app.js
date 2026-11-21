@@ -135,12 +135,23 @@ function buildFullDeck() {
   const arr = [];
   activeData().forEach(r => {
     if (isSingle()) {
-      r.points.forEach(p => { if (p.a.trim() !== '') arr.push({ ruler: r.ruler, points: [p] }); });
-    } else if (r.points.some(p => p.a.trim() !== '')) {
-      arr.push({ ruler: r.ruler, points: r.points });
+      r.points.forEach(p => {
+        if (p.a.trim()) arr.push({ ruler: r.ruler, points: [p] });
+      });
+    } else {
+      const filled = r.points.filter(p => p.a.trim());
+      if (filled.length) arr.push({ ruler: r.ruler, points: filled });
     }
   });
   return arr;
+}
+
+function startCards() {
+  deck = buildFullDeck();
+  totalCards = deck.length;
+  knownCount = 0;
+  shuffle(deck);
+  showNextCard();
 }
 
 function shuffle(a) {
@@ -148,259 +159,120 @@ function shuffle(a) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
-  return a;
 }
 
-function startCards() {
-  deck = shuffle(buildFullDeck());
-  totalCards = deck.length;
-  knownCount = 0;
-  currentCard = null;
-  renderCard();
-}
-
-function renderCard() {
+function showNextCard() {
   const wrap = $('cardWrap');
-  const single = isSingle();
-
-  $('counter').textContent = (totalCards - deck.length) + ' / ' + totalCards + '   ·   знал: ' + knownCount;
-  $('progressFill').style.width = (totalCards ? ((totalCards - deck.length) / totalCards * 100) : 0) + '%';
-
   if (deck.length === 0) {
-    wrap.innerHTML = '<div class="done-screen"><h2>🎉 Готово!</h2><p>Ты прошёл все карточки.</p><p>Знал: <b>' + knownCount + '</b> из <b>' + totalCards + '</b></p><button class="restart-btn" onclick="startCards()">Перемешать заново</button></div>';
+    wrap.innerHTML = '<div class="done-screen"><h2>Готово!</h2><p>Знал: ' + knownCount + ' из ' + totalCards + '</p><button class="restart-btn" onclick="startCards()">Ещё раз</button></div>';
+    $('counter').textContent = totalCards + ' / ' + totalCards;
+    $('progressFill').style.width = '100%';
     return;
   }
 
   currentCard = deck[0];
+  const done = totalCards - deck.length;
+  $('counter').textContent = done + ' / ' + totalCards + ' · знал: ' + knownCount;
+  $('progressFill').style.width = (done / totalCards * 100) + '%';
 
-  let qHtml = '', aHtml = '';
-  currentCard.points.forEach(p => {
-    qHtml += single
-      ? '<div class="q-single">' + escapeHtml(p.q) + '</div>'
-      : '<div><span class="num">•</span> ' + p.q + '</div>';
-    if (single) {
-      aHtml += '<div class="ans-a">' + escapeHtml(p.a) + '</div>';
-    } else {
-      aHtml += '<div class="ans-q">' + p.q + '</div>';
-      aHtml += p.a.trim() === ''
-        ? '<div class="ans-a"><span class="empty-note">(нет данных)</span></div>'
-        : '<div class="ans-a">' + escapeHtml(p.a) + '</div>';
-    }
-  });
+  let qHtml = '';
+  if (isSingle()) {
+    qHtml = '<div class="q-single">' + escapeHtml(currentCard.points[0].q) + '</div>';
+  } else {
+    qHtml = currentCard.points.map((p, i) =>
+      '<div><span class="num">' + (i + 1) + '.</span> ' + escapeHtml(p.q) + '</div>'
+    ).join('');
+  }
 
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML =
-    '<div class="card-top"><span class="ruler-tag">' + (single ? 'Вопрос' : currentCard.ruler) + '</span>' +
-    '<div class="q-points-list" id="qPointsList">' + qHtml + '</div></div>' +
-    '<div class="answer-text" id="answerText">' + aHtml + '</div>' +
-    '<button class="show-btn" id="showBtn">Показать ответ</button>';
-  wrap.innerHTML = '';
-  wrap.appendChild(card);
+  let aHtml = '';
+  if (isSingle()) {
+    aHtml = '<div class="ans-a">' + escapeHtml(currentCard.points[0].a) + '</div>';
+  } else {
+    aHtml = currentCard.points.map(p =>
+      '<span class="ans-q">' + escapeHtml(p.q) + '</span><span class="ans-a">' + escapeHtml(p.a) + '</span>'
+    ).join('');
+  }
 
-  $('showBtn').onclick = e => {
-    e.stopPropagation();
-    $('qPointsList').style.display = 'none';
-    $('answerText').classList.add('show');
-    $('showBtn').style.display = 'none';
-  };
+  wrap.innerHTML =
+    '<div class="card" id="card">' +
+      '<div class="card-top">' +
+        '<span class="ruler-tag">Вопрос</span>' +
+        '<div class="q-points-list">' + qHtml + '</div>' +
+        '<div class="answer-text" id="answerText">' + aHtml + '</div>' +
+      '</div>' +
+      '<button class="show-btn" id="showBtn" onclick="toggleAnswer()">Показать ответ</button>' +
+    '</div>';
 
-  attachSwipe(card);
+  initSwipe($('card'));
 }
 
-function attachSwipe(card) {
-  let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, locked = null;
+function toggleAnswer() {
+  const ans = $('answerText');
+  const btn = $('showBtn');
+  if (ans.classList.contains('show')) {
+    ans.classList.remove('show');
+    btn.textContent = 'Показать ответ';
+  } else {
+    ans.classList.add('show');
+    btn.textContent = 'Скрыть ответ';
+  }
+}
 
-  const onStart = (x, y) => { startX = x; startY = y; dx = 0; dy = 0; dragging = true; locked = null; card.classList.add('dragging'); };
-  const onMove = (x, y) => {
+function initSwipe(el) {
+  let startX = 0, currentX = 0, dragging = false;
+
+  const onStart = e => {
+    dragging = true;
+    startX = e.touches ? e.touches[0].clientX : e.clientX;
+    el.classList.add('dragging');
+  };
+  const onMove = e => {
     if (!dragging) return;
-    dx = x - startX; dy = y - startY;
-    if (locked === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) locked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-    if (locked === 'x') {
-      card.style.transform = 'translateX(' + dx + 'px) rotate(' + (dx / 20) + 'deg)';
-      card.style.opacity = Math.max(0.4, 1 - Math.abs(dx) / 400);
-    }
+    currentX = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+    el.style.transform = 'translateX(' + currentX + 'px) rotate(' + (currentX * 0.05) + 'deg)';
+    el.style.opacity = 1 - Math.abs(currentX) / 400;
   };
   const onEnd = () => {
     if (!dragging) return;
     dragging = false;
-    card.classList.remove('dragging');
-    if (locked === 'x' && Math.abs(dx) > 80) {
-      const know = dx > 0;
-      card.style.transform = 'translateX(' + (know ? 600 : -600) + 'px) rotate(' + (know ? 30 : -30) + 'deg)';
-      card.style.opacity = '0';
-      setTimeout(() => {
-        const done = deck.shift();
-        if (know) knownCount++; else deck.push(done);
-        renderCard();
-      }, 250);
+    el.classList.remove('dragging');
+    if (Math.abs(currentX) > 100) {
+      const known = currentX > 0;
+      if (known) knownCount++;
+      deck.shift();
+      el.style.transition = 'transform .3s, opacity .3s';
+      el.style.transform = 'translateX(' + (currentX > 0 ? 500 : -500) + 'px)';
+      el.style.opacity = '0';
+      setTimeout(showNextCard, 280);
     } else {
-      card.style.transform = '';
-      card.style.opacity = '';
+      el.style.transition = 'transform .25s, opacity .25s';
+      el.style.transform = '';
+      el.style.opacity = '1';
     }
+    currentX = 0;
   };
 
-  card.addEventListener('mousedown', e => { if (e.target.closest('.show-btn')) return; onStart(e.clientX, e.clientY); e.preventDefault(); });
-  window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-  window.addEventListener('mouseup', onEnd);
-
-  card.addEventListener('touchstart', e => {
-    if (e.target.closest('.show-btn')) return;
-    if (e.target.closest('.answer-text') && $('answerText') && $('answerText').classList.contains('show')) return;
-    onStart(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-
-  card.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const x = e.touches[0].clientX, y = e.touches[0].clientY;
-    if (locked === null && (Math.abs(x - startX) > 8 || Math.abs(y - startY) > 8)) locked = Math.abs(x - startX) > Math.abs(y - startY) ? 'x' : 'y';
-    if (locked === 'x') e.preventDefault();
-    onMove(x, y);
-  }, { passive: false });
-
-  card.addEventListener('touchend', onEnd);
+  el.addEventListener('touchstart', onStart, { passive: true });
+  el.addEventListener('touchmove', onMove, { passive: true });
+  el.addEventListener('touchend', onEnd);
+  el.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
 }
 
-/* ---------- ЭКРАН ТЕСТА (КВИЗ) ---------- */
-let quizDeck = [];
-let quizTotal = 0;
-let quizIndex = 0;
-let quizScore = 0;
-let quizAnswers = [];
-let quizCurrentOptions = [];
-let quizAnswered = false;
+/* ---------- QUIZ (если понадобится) ---------- */
+let quizIndex = 0, quizScore = 0, quizTotal = 0, quizAnswered = false, quizAnswers = [], quizCurrentOptions = [];
 
 function startQuiz() {
-  quizDeck = shuffle(activeData().map((q, i) => ({ ...q, origIndex: i })));
-  quizTotal = quizDeck.length;
-  quizIndex = 0;
-  quizScore = 0;
-  quizAnswers = [];
-  renderQuizQuestion();
+  // заглушка — в этом проекте quiz не используется
+  $('quizWrap').innerHTML = '<div class="done-screen"><h2>Тест пока не настроен</h2></div>';
 }
 
-function renderQuizQuestion() {
-  const wrap = $('quizWrap');
-  quizAnswered = false;
-  $('quizCounter').textContent = Math.min(quizIndex + 1, quizTotal) + ' / ' + quizTotal;
-  $('quizProgressFill').style.width = (quizTotal ? (quizIndex / quizTotal * 100) : 0) + '%';
-
-  if (quizIndex >= quizTotal) {
-    showQuizResults();
-    return;
-  }
-
-  const item = quizDeck[quizIndex];
-  const multi = item.correct.length > 1;
-
-  quizCurrentOptions = item.options.map((text, idx) => ({ text, orig: idx }));
-  shuffle(quizCurrentOptions);
-
-  const optsHtml = quizCurrentOptions.map((o, i) => {
-    const letter = String.fromCharCode(97 + i);
-    return '<button class="quiz-opt" data-idx="' + i + '" onclick="toggleQuizOption(' + i + ')">' +
-      '<span class="opt-letter">' + letter + '</span>' +
-      '<span class="opt-text">' + escapeHtml(o.text) + '</span>' +
-      '<span class="opt-mark"></span>' +
-      '</button>';
-  }).join('');
-
-  wrap.innerHTML =
-    '<div class="quiz-card">' +
-      '<div class="quiz-tag">' + (multi ? 'Несколько правильных' : 'Один правильный') + '</div>' +
-      '<div class="quiz-q">' + escapeHtml(item.q) + '</div>' +
-      '<div class="quiz-opts' + (multi ? ' multi' : '') + '" id="quizOpts">' + optsHtml + '</div>' +
-      '<button class="quiz-submit" id="quizSubmit" onclick="quizSubmitClick()" disabled>Ответить</button>' +
-    '</div>';
-
-  window.scrollTo(0, 0);
-}
-
-function toggleQuizOption(idx) {
-  if (quizAnswered) return;
-  const item = quizDeck[quizIndex];
-  const multi = item.correct.length > 1;
-  const btns = document.querySelectorAll('.quiz-opt');
-
-  if (!multi) {
-    btns.forEach(b => b.classList.remove('selected'));
-    btns[idx].classList.add('selected');
-  } else {
-    btns[idx].classList.toggle('selected');
-  }
-
-  $('quizSubmit').disabled = !document.querySelector('.quiz-opt.selected');
-}
-
-function quizSubmitClick() {
-  if (!quizAnswered) submitQuizAnswer();
-  else nextQuizQuestion();
-}
-
-function submitQuizAnswer() {
-  if (quizAnswered) return;
-  quizAnswered = true;
-
-  const item = quizDeck[quizIndex];
-  const selectedBtns = [...document.querySelectorAll('.quiz-opt.selected')];
-  const selectedOrig = selectedBtns.map(b => quizCurrentOptions[+b.dataset.idx].orig).sort((a, b) => a - b);
-  const correctSorted = [...item.correct].sort((a, b) => a - b);
-
-  const isCorrect = selectedOrig.length === correctSorted.length &&
-    selectedOrig.every((v, i) => v === correctSorted[i]);
-
-  if (isCorrect) quizScore++;
-  quizAnswers.push({ selected: selectedOrig, correct: isCorrect, q: item.q });
-
-  document.querySelectorAll('.quiz-opt').forEach((b, i) => {
-    const orig = quizCurrentOptions[i].orig;
-    b.disabled = true;
-    b.classList.remove('selected');
-    if (item.correct.includes(orig)) b.classList.add('correct');
-    else if (selectedOrig.includes(orig)) b.classList.add('wrong');
-  });
-
-  const submit = $('quizSubmit');
-  submit.textContent = quizIndex + 1 >= quizTotal ? 'Результаты' : 'Далее →';
-  submit.classList.add('next');
-  // короткая пауза, чтобы двойной тап не пропустил вопрос
-  submit.disabled = true;
-  setTimeout(() => { submit.disabled = false; }, 350);
-}
-
-function nextQuizQuestion() {
-  if (!quizAnswered) return;
-  quizIndex++;
-  renderQuizQuestion();
-}
-
-function showQuizResults() {
-  const wrap = $('quizWrap');
-  const pct = Math.round(quizScore / quizTotal * 100);
-  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚';
-  const title = pct === 100 ? 'Идеально!' : pct >= 80 ? 'Отлично!' : pct >= 60 ? 'Хорошо' : 'Есть над чем поработать';
-
-  let wrongHtml = '';
-  const wrongs = quizAnswers.filter(a => !a.correct);
-  if (wrongs.length) {
-    wrongHtml = '<div class="quiz-wrong-list"><div class="quiz-wrong-title">Ошибки:</div>' +
-      wrongs.map(w => '<div class="quiz-wrong-item">' + escapeHtml(w.q) + '</div>').join('') +
-      '</div>';
-  }
-
-  wrap.innerHTML =
-    '<div class="done-screen quiz-results">' +
-      '<h2>' + emoji + ' ' + title + '</h2>' +
-      '<p class="quiz-score">Правильно: <b>' + quizScore + '</b> из <b>' + quizTotal + '</b></p>' +
-      '<p class="quiz-pct">' + pct + '%</p>' +
-      wrongHtml +
-      '<button class="restart-btn" onclick="startQuiz()">Пройти ещё раз</button>' +
-    '</div>';
-
-  $('quizCounter').textContent = quizTotal + ' / ' + quizTotal;
-  $('quizProgressFill').style.width = '100%';
-  window.scrollTo(0, 0);
-}
+function renderQuizQuestion() {}
+function selectQuizOpt() {}
+function checkQuizAnswer() {}
+function nextQuizQuestion() {}
+function showQuizResults() {}
 
 /* ---------- СТАРТ ---------- */
 applyTheme();
