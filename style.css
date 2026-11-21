@@ -108,9 +108,6 @@ main {
     white-space: pre-wrap;
 }
 
-.learn-item p.answer-hidden {
-    display: none !important;
-}
 
 .learn-item p.empty-answer {
     color: var(--text-muted);
