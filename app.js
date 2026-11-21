@@ -89,10 +89,17 @@ function initLearnMode() {
         div.innerHTML = `<h3>${item.q}</h3><p class="${answerClass}">${answerText}</p>`;
         
         // Клик для показа/скрытия ответа
-        div.addEventListener('click', () => {
-            const p = div.querySelector('p');
+        div.addEventListener('click', function() {
+            const p = this.querySelector('p');
+            // Если это пустой ответ — ничего не делаем
             if (p.classList.contains('empty-answer')) return;
-            p.classList.toggle('answer-hidden');
+            
+            // Переключаем видимость
+            if (p.classList.contains('answer-hidden')) {
+                p.classList.remove('answer-hidden');
+            } else {
+                p.classList.add('answer-hidden');
+            }
         });
 
         learnList.appendChild(div);
@@ -140,8 +147,11 @@ function updateCard() {
 
 // Показ ответа на синей карточке
 showAnswerBtn.addEventListener('click', () => {
-    cardAnswer.classList.remove('hidden');
-    showAnswerBtn.style.display = 'none';
+    // Защита от нажатия, если карточки закончились
+    if (currentIndex < currentCards.length) {
+        cardAnswer.classList.remove('hidden');
+        showAnswerBtn.style.display = 'none';
+    }
 });
 
 // Обработка свайпов и кнопок
