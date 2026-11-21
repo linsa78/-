@@ -42,28 +42,14 @@ let currentIndex = 0;
 let knownCount = 0;
 let currentCards = [];
 
-// DOM Элементы
-const tabs = document.querySelectorAll('.tab-btn');
-const modes = document.querySelectorAll('.mode');
-const learnList = document.getElementById('learn-list');
-
-const flashcard = document.getElementById('flashcard');
-const cardQuestion = document.getElementById('card-question');
-const cardAnswer = document.getElementById('card-answer');
-const showAnswerBtn = document.getElementById('show-answer-btn');
-const progressText = document.getElementById('progress-text');
-const progressFill = document.getElementById('progress-fill');
-const btnKnow = document.getElementById('btn-know');
-const btnDontKnow = document.getElementById('btn-dont-know');
-
 // Переключение вкладок
-tabs.forEach(tab => {
+document.querySelectorAll('.tab-btn').forEach(tab => {
     tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        modes.forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.mode').forEach(m => m.classList.remove('active'));
         
         tab.classList.add('active');
-        document.getElementById(`${tab.dataset.tab}-mode`).classList.add('active');
+        document.getElementById(tab.dataset.tab + '-mode').classList.add('active');
 
         if (tab.dataset.tab === 'cards') {
             initCards();
@@ -71,8 +57,11 @@ tabs.forEach(tab => {
     });
 });
 
-// Инициализация режима "Учить" (Клик по карточке)
+// Режим "Учить"
 function initLearnMode() {
+    const learnList = document.getElementById('learn-list');
+    if (!learnList) return; // Защита
+
     learnList.innerHTML = '';
     flashcardsData.forEach(item => {
         const div = document.createElement('div');
@@ -88,7 +77,7 @@ function initLearnMode() {
             p.className = 'empty-answer';
         } else {
             p.textContent = item.a;
-            p.style.display = 'none'; // Скрываем ответ по умолчанию
+            p.style.display = 'none'; // Скрыто
         }
 
         div.appendChild(h3);
@@ -96,8 +85,6 @@ function initLearnMode() {
         
         div.addEventListener('click', function() {
             if (p.classList.contains('empty-answer')) return;
-            
-            // Переключаем видимость
             if (p.style.display === 'none') {
                 p.style.display = 'block';
             } else {
@@ -109,11 +96,10 @@ function initLearnMode() {
     });
 }
 
-// Инициализация режима "Карточки" (с перемешиванием)
+// Режим "Карточки"
 function initCards() {
     currentCards = flashcardsData.filter(item => item.a.trim() !== "");
     
-    // Перемешиваем
     for (let i = currentCards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
@@ -124,14 +110,22 @@ function initCards() {
     updateCard();
 }
 
-// Обновление карточки
 function updateCard() {
+    const cardQuestion = document.getElementById('card-question');
+    const cardAnswer = document.getElementById('card-answer');
+    const showAnswerBtn = document.getElementById('show-answer-btn');
+    const progressText = document.getElementById('progress-text');
+    const progressFill = document.getElementById('progress-fill');
+    const flashcard = document.getElementById('flashcard');
+
+    if (!cardQuestion || !cardAnswer) return;
+
     if (currentIndex >= currentCards.length) {
         cardQuestion.textContent = "Поздравляем! Вы прошли все карточки!";
         cardAnswer.classList.add('hidden');
-        showAnswerBtn.style.display = 'none';
-        progressText.textContent = `Завершено! Знал: ${knownCount} из ${currentCards.length}`;
-        progressFill.style.width = '100%';
+        if (showAnswerBtn) showAnswerBtn.style.display = 'none';
+        if (progressText) progressText.textContent = `Завершено! Знал: ${knownCount} из ${currentCards.length}`;
+        if (progressFill) progressFill.style.width = '100%';
         return;
     }
 
@@ -139,25 +133,31 @@ function updateCard() {
     cardQuestion.textContent = card.q;
     cardAnswer.textContent = card.a;
     cardAnswer.classList.add('hidden');
-    showAnswerBtn.style.display = 'block';
+    if (showAnswerBtn) showAnswerBtn.style.display = 'block';
     
-    progressText.textContent = `${currentIndex} / ${currentCards.length} · знал: ${knownCount}`;
-    progressFill.style.width = `${(currentIndex / currentCards.length) * 100}%`;
+    if (progressText) progressText.textContent = `${currentIndex} / ${currentCards.length} · знал: ${knownCount}`;
+    if (progressFill) progressFill.style.width = `${(currentIndex / currentCards.length) * 100}%`;
     
-    flashcard.className = 'flashcard';
+    if (flashcard) flashcard.className = 'flashcard';
 }
 
-// Показ ответа на карточке
-showAnswerBtn.addEventListener('click', () => {
-    if (currentIndex < currentCards.length) {
-        cardAnswer.classList.remove('hidden');
-        showAnswerBtn.style.display = 'none';
-    }
-});
+// Кнопка "Показать ответ" на синей карточке
+const showAnswerBtn = document.getElementById('show-answer-btn');
+if (showAnswerBtn) {
+    showAnswerBtn.addEventListener('click', () => {
+        const cardAnswer = document.getElementById('card-answer');
+        if (currentIndex < currentCards.length && cardAnswer) {
+            cardAnswer.classList.remove('hidden');
+            showAnswerBtn.style.display = 'none';
+        }
+    });
+}
 
-// Свайпы / кнопки
+// Свайпы
 function handleSwipe(isKnown) {
     if (currentIndex >= currentCards.length) return;
+    const flashcard = document.getElementById('flashcard');
+    if (!flashcard) return;
 
     if (isKnown) {
         knownCount++;
@@ -172,35 +172,41 @@ function handleSwipe(isKnown) {
     }, 300);
 }
 
-btnKnow.addEventListener('click', () => handleSwipe(true));
-btnDontKnow.addEventListener('click', () => handleSwipe(false));
+// Кнопки свайпов
+const btnKnow = document.getElementById('btn-know');
+const btnDontKnow = document.getElementById('btn-dont-know');
+if (btnKnow) btnKnow.addEventListener('click', () => handleSwipe(true));
+if (btnDontKnow) btnDontKnow.addEventListener('click', () => handleSwipe(false));
 
-// Свайпы пальцем/мышью
-let startX = 0;
-let isDragging = false;
+// Свайпы мышью и пальцем
+const flashcard = document.getElementById('flashcard');
+if (flashcard) {
+    let startX = 0;
+    let isDragging = false;
 
-flashcard.addEventListener('mousedown', (e) => {
-    startX = e.clientX;
-    isDragging = true;
-});
+    flashcard.addEventListener('mousedown', (e) => {
+        startX = e.clientX;
+        isDragging = true;
+    });
 
-flashcard.addEventListener('mouseup', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    const diff = e.clientX - startX;
-    if (diff > 100) handleSwipe(true);
-    else if (diff < -100) handleSwipe(false);
-});
+    flashcard.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        const diff = e.clientX - startX;
+        if (diff > 100) handleSwipe(true);
+        else if (diff < -100) handleSwipe(false);
+    });
 
-flashcard.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-}, { passive: true });
+    flashcard.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+    }, { passive: true });
 
-flashcard.addEventListener('touchend', (e) => {
-    const diff = e.changedTouches[0].clientX - startX;
-    if (diff > 100) handleSwipe(true);
-    else if (diff < -100) handleSwipe(false);
-});
+    flashcard.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].clientX - startX;
+        if (diff > 100) handleSwipe(true);
+        else if (diff < -100) handleSwipe(false);
+    });
+}
 
 // Запуск
 initLearnMode();
