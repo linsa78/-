@@ -72,19 +72,48 @@ tabs.forEach(tab => {
 });
 
 // Инициализация режима "Учить" (Клик по карточке)
+// Инициализация режима "Учить" (Клик по карточке)
 function initLearnMode() {
     learnList.innerHTML = '';
     flashcardsData.forEach(item => {
         const div = document.createElement('div');
         div.className = 'learn-item';
         
-        let answerText = item.a;
-        let answerClass = 'answer-hidden'; // По умолчанию скрыто
+        // Создаем элементы вопроса и ответа
+        const h3 = document.createElement('h3');
+        h3.textContent = item.q;
         
+        const p = document.createElement('p');
+        
+        // Если ответ пустой
         if (!item.a.trim()) {
-            answerText = "[Ответ пока не добавлен]";
-            answerClass = 'empty-answer'; // Пустые показываем сразу
+            p.textContent = "[Ответ пока не добавлен]";
+            p.className = 'empty-answer';
+        } else {
+            p.textContent = item.a;
+            p.style.display = 'none'; // Жестко скрываем через стиль
         }
+
+        // Собираем карточку
+        div.appendChild(h3);
+        div.appendChild(p);
+        
+        // Клик для показа/скрытия
+        div.addEventListener('click', function() {
+            // Если ответ пустой — не реагируем
+            if (p.classList.contains('empty-answer')) return;
+            
+            // Переключаем видимость напрямую
+            if (p.style.display === 'none') {
+                p.style.display = 'block';
+            } else {
+                p.style.display = 'none';
+            }
+        });
+
+        learnList.appendChild(div);
+    });
+}
 
         div.innerHTML = `<h3>${item.q}</h3><p class="${answerClass}">${answerText}</p>`;
         
