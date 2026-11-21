@@ -41,12 +41,11 @@ const flashcardsData = [
 let currentIndex = 0;
 let knownCount = 0;
 let currentCards = [];
-let answersVisible = false; // По умолчанию ответы скрыты
 
+// DOM Элементы
 const tabs = document.querySelectorAll('.tab-btn');
 const modes = document.querySelectorAll('.mode');
 const learnList = document.getElementById('learn-list');
-const toggleAnswersBtn = document.getElementById('toggle-answers-btn');
 
 const flashcard = document.getElementById('flashcard');
 const cardQuestion = document.getElementById('card-question');
@@ -67,12 +66,45 @@ tabs.forEach(tab => {
         document.getElementById(`${tab.dataset.tab}-mode`).classList.add('active');
 
         if (tab.dataset.tab === 'cards') {
-            // Инициализация режима "Карточки"
+            initCards();
+        }
+    });
+});
+
+// Инициализация режима "Учить" (Клик по карточке)
+function initLearnMode() {
+    learnList.innerHTML = '';
+    flashcardsData.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'learn-item';
+        
+        let answerText = item.a;
+        let answerClass = 'answer-hidden'; // По умолчанию скрыто
+        
+        if (!item.a.trim()) {
+            answerText = "[Ответ пока не добавлен]";
+            answerClass = 'empty-answer'; // Пустые показываем сразу
+        }
+
+        div.innerHTML = `<h3>${item.q}</h3><p class="${answerClass}">${answerText}</p>`;
+        
+        // Клик для показа/скрытия ответа
+        div.addEventListener('click', () => {
+            const p = div.querySelector('p');
+            if (p.classList.contains('empty-answer')) return;
+            p.classList.toggle('answer-hidden');
+        });
+
+        learnList.appendChild(div);
+    });
+}
+
+// Инициализация режима "Карточки" (с перемешиванием)
 function initCards() {
-    // Берем только те карточки, где есть ответ
+    // Берем только те, где есть ответ
     currentCards = flashcardsData.filter(item => item.a.trim() !== "");
     
-    // ПЕРЕМЕШИВАЕМ КАРТОЧКИ (алгоритм Фишера-Йетса)
+    // Перемешиваем (Фишер-Йетс)
     for (let i = currentCards.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
@@ -81,57 +113,9 @@ function initCards() {
     currentIndex = 0;
     knownCount = 0;
     updateCard();
-};
-        }
-    });
-});
-
-// Инициализация режима "Учить"
-function initLearnMode() {
-    learnList.innerHTML = '';
-    flashcardsData.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'learn-item';
-        
-        let answerText = item.a;
-        let answerClass = answersVisible ? '' : 'answer-hidden';
-        
-        if (!item.a.trim()) {
-            answerText = "[Ответ пока не добавлен]";
-            answerClass = 'empty-answer'; 
-        }
-
-        div.innerHTML = `<h3>${item.q}</h3><p class="${answerClass}">${answerText}</p>`;
-        learnList.appendChild(div);
-    });
 }
 
-// Кнопка "Показать/Скрыть ответы" в режиме Учить
-toggleAnswersBtn.addEventListener('click', () => {
-    answersVisible = !answersVisible;
-    toggleAnswersBtn.textContent = answersVisible ? 'Скрыть ответы' : 'Показать ответы';
-    
-    const answers = document.querySelectorAll('.learn-item p');
-    answers.forEach(p => {
-        // Не трогаем те, где нет ответа
-        if (p.textContent === "[Ответ пока не добавлен]") return; 
-        
-        if (answersVisible) {
-            p.classList.remove('answer-hidden');
-        } else {
-            p.classList.add('answer-hidden');
-        }
-    });
-});
-
-// Инициализация режима "Карточки"
-function initCards() {
-    currentCards = flashcardsData.filter(item => item.a.trim() !== "");
-    currentIndex = 0;
-    knownCount = 0;
-    updateCard();
-}
-
+// Обновление карточки на экране
 function updateCard() {
     if (currentIndex >= currentCards.length) {
         cardQuestion.textContent = "Поздравляем! Вы прошли все карточки!";
@@ -154,11 +138,13 @@ function updateCard() {
     flashcard.className = 'flashcard';
 }
 
+// Показ ответа на синей карточке
 showAnswerBtn.addEventListener('click', () => {
     cardAnswer.classList.remove('hidden');
     showAnswerBtn.style.display = 'none';
 });
 
+// Обработка свайпов и кнопок
 function handleSwipe(isKnown) {
     if (currentIndex >= currentCards.length) return;
 
@@ -178,7 +164,7 @@ function handleSwipe(isKnown) {
 btnKnow.addEventListener('click', () => handleSwipe(true));
 btnDontKnow.addEventListener('click', () => handleSwipe(false));
 
-// Свайпы
+// Свайпы мышью и пальцем
 let startX = 0;
 let isDragging = false;
 
@@ -205,5 +191,5 @@ flashcard.addEventListener('touchend', (e) => {
     else if (diff < -100) handleSwipe(false);
 });
 
-// Запуск
+// Запуск при загрузке страницы
 initLearnMode();
