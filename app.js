@@ -67,7 +67,21 @@ tabs.forEach(tab => {
         document.getElementById(`${tab.dataset.tab}-mode`).classList.add('active');
 
         if (tab.dataset.tab === 'cards') {
-            initCards();
+            // Инициализация режима "Карточки"
+function initCards() {
+    // Берем только те карточки, где есть ответ
+    currentCards = flashcardsData.filter(item => item.a.trim() !== "");
+    
+    // ПЕРЕМЕШИВАЕМ КАРТОЧКИ (алгоритм Фишера-Йетса)
+    for (let i = currentCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+    }
+    
+    currentIndex = 0;
+    knownCount = 0;
+    updateCard();
+};
         }
     });
 });
