@@ -108,11 +108,9 @@ main {
     white-space: pre-wrap;
 }
 
-
 .learn-item p.empty-answer {
     color: var(--text-muted);
     font-style: italic;
-    display: block !important; 
 }
 
 /* --- Режим Карточки --- */
