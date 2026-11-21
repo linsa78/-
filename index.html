@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>История — Горбачёв</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="subject-title" id="subjectTitle">
+      <span class="dot"></span>
+      <span id="subjectName"></span>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="study" onclick="switchTab('study')">Учить</button>
+      <button class="tab" data-tab="cards" onclick="switchTab('cards')">Карточки</button>
+    </div>
+    <button class="menu-btn" onclick="toggleMenu(event)" aria-label="Меню">⋮</button>
+  </div>
+</header>
+
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="dropdown" id="dropdown"></div>
+
+<div id="studyScreen" class="screen active">
+  <div class="ruler-list" id="rulerList"></div>
+  <div id="studyContent"></div>
+</div>
+
+<div id="cardScreen" class="screen">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="counter" id="counter">0 / 0</div>
+  <div class="card-wrap" id="cardWrap"></div>
+  <div class="hint-swipe">Свайп <b>влево</b> — не знал · Свайп <b>вправо</b> — знал</div>
+</div>
+
+<div id="quizScreen" class="screen">
+  <div class="progress-bar"><div class="progress-fill" id="quizProgressFill"></div></div>
+  <div class="counter" id="quizCounter">0 / 0</div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</div>
+
+<script src="subjects.js"></script>
+<script src="history.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
